@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "831054579253",
+    "project_id": "cadastro-veiculo",
+    "storage_bucket": "cadastro-veiculo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:831054579253:android:cfd70c7e521ad7e3fc137c",
+        "android_client_info": {
+          "package_name": "com.example.cadastro_veiculo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "831054579253-to6aphkroetna0urvlqtl6tguktgd8la.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHyZSygd3E00-jZF76mFN6iYzJNnX_fW4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "831054579253-to6aphkroetna0urvlqtl6tguktgd8la.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
