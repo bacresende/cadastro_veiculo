@@ -12,6 +12,8 @@ class GerarExcel {
   Firestore _db = Firestore.instance;
   List<RegistrarPontoModel> registros = [];
 
+  
+
   Future<void> createExcel() async {
     //Pegar dados do banco de dados
     QuerySnapshot querySnapshot =
@@ -21,7 +23,8 @@ class GerarExcel {
         .map((DocumentSnapshot doc) => RegistrarPontoModel.fromDocument(doc))
         .toList();
 
-    this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b)=> a.horaRegistro.compareTo(b.horaRegistro));
+    this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
+        a.horaRegistro.compareTo(b.horaRegistro));
 
     print(this.registros);
 
@@ -278,8 +281,9 @@ class GerarExcel {
   void rodape(int valorFinalDaColuna) {
     int linhaRodape = this.registros.length + 15;
 
-    sheet.getRangeByIndex(linhaRodape, 1, linhaRodape, valorFinalDaColuna).cellStyle.backColor =
-        '#3980ff';
-
+    sheet
+        .getRangeByIndex(linhaRodape, 1, linhaRodape, valorFinalDaColuna)
+        .cellStyle
+        .backColor = '#3980ff';
   }
 }
