@@ -14,14 +14,10 @@ class GerarExcel {
 
   
 
-  Future<void> createExcel() async {
-    //Pegar dados do banco de dados
-    QuerySnapshot querySnapshot =
-        await _db.collection('registros').getDocuments();
+  Future<void> createExcel(List<RegistrarPontoModel> registrosLocal) async {
+    
 
-    this.registros = querySnapshot.documents
-        .map((DocumentSnapshot doc) => RegistrarPontoModel.fromDocument(doc))
-        .toList();
+    this.registros = registrosLocal;
 
     this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
         a.horaRegistro.compareTo(b.horaRegistro));
@@ -117,7 +113,7 @@ class GerarExcel {
     for (int i = 0; i < this.registros.length; i++) {
       int linha = i + 2;
       RegistrarPontoModel registro = this.registros[i];
-      sheet.getRangeByName('B$linha').setText(registro.getData ?? '');
+      sheet.getRangeByName('B$linha').setText(registro.getDataCompleta ?? '');
     }
   }
 

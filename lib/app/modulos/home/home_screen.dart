@@ -35,8 +35,7 @@ class HomeScreen extends GetView<HomeController> {
                         icon: Icon(Icons.donut_large_sharp),
                         tooltip: 'Gerar Excel',
                         onPressed: () async {
-                          //await GerarExcel().createExcel();
-                          await controller.testeDePegarDados();
+                          await controller.dialogGerarOuExcluirDados();
                           print('clicado');
                         }),
                   ],

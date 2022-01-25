@@ -10,8 +10,11 @@ class RegistrarPontoModel extends CarroModel {
 
   RegistrarPontoModel();
 
-  String get getData =>
+  String get getDataCompleta =>
       '${this.horaRegistro.day}/${this.horaRegistro.month}/${this.horaRegistro.year}';
+
+  String get getMesAno =>
+      '${this.horaRegistro.month}/${this.horaRegistro.year}';    
 
   String get getHoras => '${this.horaRegistro.hour}:${this.horaRegistro.minute}';
 

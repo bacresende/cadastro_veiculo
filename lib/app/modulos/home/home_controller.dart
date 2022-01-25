@@ -23,6 +23,7 @@ class HomeController extends GetxController {
   List<String> listaIntervalada = [];
   RxBool _mostrarCampoDataFinal = false.obs;
   RxString _dataFinalSelecionada = ''.obs;
+  List<RegistrarPontoModel> registros = [];
 
   bool get mostrarCampoDataFinal => _mostrarCampoDataFinal.value;
 
@@ -70,17 +71,7 @@ class HomeController extends GetxController {
     });
   }
 
-  Future<void> testeDePegarDados() async {
-    QuerySnapshot querySnapshot =
-        await _db.collection('registros').getDocuments();
-
-    List<RegistrarPontoModel> registros = querySnapshot.documents
-        .map((DocumentSnapshot doc) => RegistrarPontoModel.fromDocument(doc))
-        .toList();
-
-    registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
-        a.horaRegistro.compareTo(b.horaRegistro));
-
+  Future<void> dialogGerarOuExcluirDados() async {
     showModalBottomSheet(
         context: Get.context,
         backgroundColor: Colors.transparent,
@@ -101,9 +92,9 @@ class HomeController extends GetxController {
                       child: Column(
                         children: [
                           Text(
-                            'Selecione o que deseja gerar',
+                            'Selecione o que deseja fazer',
                             style: TextStyle(
-                                color: corAzul,
+                                color: corAzulEscuro,
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -113,34 +104,31 @@ class HomeController extends GetxController {
                     ),
                   ),
                   ListTile(
-                    title: Text('Gerar Excel Completo',
+                    title: Text('Gerar Excel',
                         style: TextStyle(
                             color: corAzul,
-                            fontSize: 18,
+                            fontSize: 30,
                             fontWeight: FontWeight.w600)),
                     onTap: () async {
-                      print('mes em questao');
-                      Get.back();
-                      Get.back();
-                      await GerarExcel().createExcel();
+                      this.dialogSelecionarOpcaoIntervaloDados('Gerar');
                     },
                   ),
                   Divider(
                     color: corAzul,
                   ),
                   ListTile(
-                    title: Text('Gerar Excel em um Intervalo de Tempo',
+                    title: Text('Excluir Dados em um Intervalo de Tempo',
                         style: TextStyle(
                             color: corAzul,
-                            fontSize: 18,
+                            fontSize: 30,
                             fontWeight: FontWeight.w600)),
                     subtitle: Text(
                       '(De uma data à outra)',
                       style: TextStyle(
-                          color: Colors.grey, fontWeight: FontWeight.w600),
+                          color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                     onTap: () {
-                      abrirDialogIntervaloInicialExcel(registros);
+                      this.dialogSelecionarOpcaoIntervaloDados('Excluir');
                     },
                   ),
                   Container(
@@ -168,7 +156,124 @@ class HomeController extends GetxController {
         });
   }
 
-  void abrirDialogIntervaloInicialExcel(List<RegistrarPontoModel> registros) {
+  Future<void> dialogSelecionarOpcaoIntervaloDados(String tipo) async {
+    this.registros.clear();
+    QuerySnapshot querySnapshot =
+        await _db.collection('registros').getDocuments();
+
+    this.registros = querySnapshot.documents
+        .map((DocumentSnapshot doc) => RegistrarPontoModel.fromDocument(doc))
+        .toList();
+
+    this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
+        a.horaRegistro.compareTo(b.horaRegistro));
+
+    print('tamanho de registros');
+    print(registros.length);
+
+    showModalBottomSheet(
+        context: Get.context,
+        backgroundColor: Colors.transparent,
+        builder: (_) {
+          return Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Selecione o que deseja fazer',
+                            style: TextStyle(
+                                color: corAzulEscuro,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Divider()
+                        ],
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                        tipo == 'Gerar'
+                            ? 'Gerar Excel Completo'
+                            : 'Excluir Dados Completos',
+                        style: TextStyle(
+                            color: corAzul,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600)),
+                    onTap: () async {
+                      Get.back();
+                      Get.back();
+                      Get.back();
+                      if (tipo == 'Gerar') {
+                        await GerarExcel().createExcel(this.registros);
+                      } else {
+                        //Excluir toda a lista
+                        print(this.registros.length);
+                        for(RegistrarPontoModel registro in this.registros){
+                          print(registro.id);
+                          await _db.collection('registros').document(registro.id).delete();
+                        }
+                      }
+                    },
+                  ),
+                  Divider(
+                    color: corAzul,
+                  ),
+                  ListTile(
+                    title: Text(
+                        tipo == 'Gerar'
+                            ? 'Gerar Excel em um Intervalo de Tempo'
+                            : 'Excluir Dados em um Intervalo de Tempo',
+                        style: TextStyle(
+                            color: corAzul,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600)),
+                    subtitle: Text(
+                      '(De uma data à outra)',
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.w600),
+                    ),
+                    onTap: () {
+                      abrirDialogIntervaloInicialExcel(tipo);
+                    },
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 5, bottom: 8.0),
+                    child: FloatingActionButton.extended(
+                      backgroundColor: corAzul,
+                      elevation: 0,
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                      label: Text(
+                        'Voltar',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () {
+                        Get.back();
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void abrirDialogIntervaloInicialExcel(String tipo) {
     this.listaIntervalada = [];
     this.datasIntervalo = [];
     this.dataInicialSelecionada = null;
@@ -177,10 +282,10 @@ class HomeController extends GetxController {
 
     List<String> listMesAno = [];
 
-    for (RegistrarPontoModel registro in registros) {
-      print(registro.getData);
+    for (RegistrarPontoModel registro in this.registros) {
+      print(registro.getDataCompleta);
 
-      List<String> datasSeparadas = registro.getData.split('/');
+      List<String> datasSeparadas = registro.getDataCompleta.split('/');
 
       String mesAno = datasSeparadas[1] + '/' + datasSeparadas[2];
 
@@ -215,14 +320,14 @@ class HomeController extends GetxController {
                                 'Selecione o Primeiro Intervalo',
                                 style: TextStyle(
                                     color: corAzul,
-                                    fontSize: 18,
+                                    fontSize: 25,
                                     fontWeight: FontWeight.w600),
                               ),
                             ),
                             ElegantDropdown(
                               cor: corAzul,
                               value: this.dataInicialSelecionada ?? null,
-                              hint: 'Selecione a primera data',
+                              hint: 'Selecione o Primero Intervalo',
                               items:
                                   IntervaloDatas.getDatasIniciais(listMesAno),
                               onChanged: (String value) {
@@ -248,7 +353,7 @@ class HomeController extends GetxController {
                                       'Selecione o Segundo Intervalo',
                                       style: TextStyle(
                                           color: corAzul,
-                                          fontSize: 18,
+                                          fontSize: 25,
                                           fontWeight: FontWeight.w600),
                                     ),
                                   ),
@@ -269,26 +374,20 @@ class HomeController extends GetxController {
                                     top: 16, bottom: 10, left: 8, right: 8),
                                 child: CustomButton(
                                   color: corAzul,
-                                  label: 'Gerar Excel',
-                                  action: () {
+                                  label: tipo == 'Gerar'
+                                      ? 'Gerar Excel'
+                                      : 'Excluir Dados',
+                                  action: () async {
                                     print(listaIntervalada);
-                                    String mesAnoInicial =
-                                        DataUtil.getMostrarMesAtual(
-                                      listaIntervalada.first,
-                                    );
-                                    String mesAnoFinal =
-                                        DataUtil.getMostrarMesAtual(
-                                      listaIntervalada.last,
-                                    );
 
-                                    String intervalo =
-                                        '$mesAnoInicial à $mesAnoFinal';
+                                    await this.selecionarDataDoBanco(
+                                        listaIntervalada, tipo);
+
                                     Get.back();
                                     Get.back();
                                     Get.back();
-                                    print(intervalo);
-                                    /*generateExcel.createExcel(
-                                  listaIntervalada, intervalo);*/
+                                    Get.back();
+
                                   },
                                 ),
                               )
@@ -307,7 +406,7 @@ class HomeController extends GetxController {
 
     int index = datasIntervalo.indexOf(this.dataInicialSelecionada);
 
-    for (int i = 0; i <= index; i++) {
+    for (int i = 0; i < index; i++) {
       datasIntervalo.removeAt(0);
     }
 
@@ -325,7 +424,44 @@ class HomeController extends GetxController {
       listaIntervalada.add(datasIntervalo[i]);
     }
 
-    listaIntervalada.insert(0, this.dataInicialSelecionada);
+    //listaIntervalada.insert(0, this.dataInicialSelecionada);
+  }
+
+  Future<void> selecionarDataDoBanco(
+      List<String> listaIntervalada, String tipo) async {
+    List<RegistrarPontoModel> registrosLocal = [];
+    if (listaIntervalada.first == listaIntervalada.last) {
+      //pegar apenas o mês em questão
+      print('pegar apenas o mês em questão');
+      print(listaIntervalada);
+
+      registrosLocal = this
+          .registros
+          .where((RegistrarPontoModel registro) =>
+              registro.getMesAno.contains(listaIntervalada.first))
+          .toList();
+    } else {
+      //pegar os meses selecionados
+      print('pegar os meses selecionados');
+      print(listaIntervalada);
+
+      for (String intervalo in listaIntervalada) {
+        registrosLocal.addAll(registros
+            .where((RegistrarPontoModel registro) =>
+                registro.getMesAno.contains(intervalo))
+            .toList());
+      }
+    }
+
+    if (tipo == 'Gerar') {
+      await GerarExcel().createExcel(registrosLocal);
+    } else {
+      //Excluir dados com base nos ids da lista de registros;
+      for (RegistrarPontoModel registro in registrosLocal) {
+        print(registro.id);
+        await _db.collection('registros').document(registro.id).delete();
+      }
+    }
   }
 
   Future<void> abrirDialogRegistro() async {
