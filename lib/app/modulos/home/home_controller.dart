@@ -24,6 +24,11 @@ class HomeController extends GetxController {
   RxBool _mostrarCampoDataFinal = false.obs;
   RxString _dataFinalSelecionada = ''.obs;
   List<RegistrarPontoModel> registros = [];
+  RxBool _loadingRegistrosExcel = false.obs;
+
+  bool get loadingRegistrosExcel => _loadingRegistrosExcel.value;
+
+  set loadingRegistrosExcel(bool value) => _loadingRegistrosExcel.value = value;
 
   bool get mostrarCampoDataFinal => _mostrarCampoDataFinal.value;
 
@@ -79,84 +84,103 @@ class HomeController extends GetxController {
           return Padding(
             padding: const EdgeInsets.all(15.0),
             child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Selecione o que deseja fazer',
-                            style: TextStyle(
-                                color: corAzulEscuro,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
+                child: Obx(
+                  () => !this.loadingRegistrosExcel
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 15.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Selecione o que deseja fazer',
+                                      style: TextStyle(
+                                          color: corAzulEscuro,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Divider()
+                                  ],
+                                ),
+                              ),
+                            ),
+                            ListTile(
+                              title: Text('Gerar Excel',
+                                  style: TextStyle(
+                                      color: corAzul,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w600)),
+                              onTap: () async {
+                                this.dialogSelecionarOpcaoIntervaloDados(
+                                    'Gerar');
+                              },
+                            ),
+                            Divider(
+                              color: corAzul,
+                            ),
+                            ListTile(
+                              title: Text(
+                                  'Excluir Dados em um Intervalo de Tempo',
+                                  style: TextStyle(
+                                      color: corAzul,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w600)),
+                              onTap: () {
+                                this.dialogSelecionarOpcaoIntervaloDados(
+                                    'Excluir');
+                              },
+                            ),
+                            Container(
+                              padding:
+                                  const EdgeInsets.only(left: 5, bottom: 8.0),
+                              child: FloatingActionButton.extended(
+                                backgroundColor: corAzul,
+                                elevation: 0,
+                                icon: Icon(Icons.arrow_back_ios,
+                                    color: Colors.white),
+                                label: Text(
+                                  'Voltar',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  Get.back();
+                                },
+                              ),
+                            )
+                          ],
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Carregando, aguarde...',
+                                  style: TextStyle(
+                                      color: corAzul,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w600)),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              CircularProgressIndicator()
+                            ],
                           ),
-                          Divider()
-                        ],
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    title: Text('Gerar Excel',
-                        style: TextStyle(
-                            color: corAzul,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w600)),
-                    onTap: () async {
-                      this.dialogSelecionarOpcaoIntervaloDados('Gerar');
-                    },
-                  ),
-                  Divider(
-                    color: corAzul,
-                  ),
-                  ListTile(
-                    title: Text('Excluir Dados em um Intervalo de Tempo',
-                        style: TextStyle(
-                            color: corAzul,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w600)),
-                    subtitle: Text(
-                      '(De uma data à outra)',
-                      style: TextStyle(
-                          color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                    onTap: () {
-                      this.dialogSelecionarOpcaoIntervaloDados('Excluir');
-                    },
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 5, bottom: 8.0),
-                    child: FloatingActionButton.extended(
-                      backgroundColor: corAzul,
-                      elevation: 0,
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                      label: Text(
-                        'Voltar',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () {
-                        Get.back();
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
+                        ),
+                )),
           );
         });
   }
 
   Future<void> dialogSelecionarOpcaoIntervaloDados(String tipo) async {
+    this.loadingRegistrosExcel = true;
     this.registros.clear();
     QuerySnapshot querySnapshot =
         await _db.collection('registros').getDocuments();
@@ -170,6 +194,7 @@ class HomeController extends GetxController {
 
     print('tamanho de registros');
     print(registros.length);
+    this.loadingRegistrosExcel = false;
 
     showModalBottomSheet(
         context: Get.context,
@@ -180,94 +205,120 @@ class HomeController extends GetxController {
             child: Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Selecione o que deseja fazer',
-                            style: TextStyle(
-                                color: corAzulEscuro,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold),
+              child: Obx(() => !this.loadingRegistrosExcel
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 15.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Selecione o que deseja fazer',
+                                  style: TextStyle(
+                                      color: corAzulEscuro,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Divider()
+                              ],
+                            ),
                           ),
-                          Divider()
+                        ),
+                        ListTile(
+                          title: Text(
+                              tipo == 'Gerar'
+                                  ? 'Gerar Excel Completo'
+                                  : 'Excluir Dados Completos',
+                              style: TextStyle(
+                                  color: corAzul,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w600)),
+                          onTap: () async {
+                            this.loadingRegistrosExcel = true;
+                            Get.back();
+                            Get.back();
+                            Get.back();
+                            if (tipo == 'Gerar') {
+                              await GerarExcel().createExcel(this.registros);
+                            } else {
+                              //Excluir toda a lista
+                              print(this.registros.length);
+                              for (RegistrarPontoModel registro
+                                  in this.registros) {
+                                print(registro.id);
+                                _db
+                                    .collection('registros')
+                                    .document(registro.id)
+                                    .delete();
+                              }
+                            }
+
+                            this.loadingRegistrosExcel = false;
+                          },
+                        ),
+                        Divider(
+                          color: corAzul,
+                        ),
+                        ListTile(
+                          title: Text(
+                              tipo == 'Gerar'
+                                  ? 'Gerar Excel em um Intervalo de Tempo'
+                                  : 'Excluir Dados em um Intervalo de Tempo',
+                              style: TextStyle(
+                                  color: corAzul,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w600)),
+                          subtitle: Text(
+                            '(De uma data à outra)',
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          onTap: () {
+                            abrirDialogIntervaloInicialExcel(tipo);
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 5, bottom: 8.0),
+                          child: FloatingActionButton.extended(
+                            backgroundColor: corAzul,
+                            elevation: 0,
+                            icon:
+                                Icon(Icons.arrow_back_ios, color: Colors.white),
+                            label: Text(
+                              'Voltar',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () {
+                              Get.back();
+                            },
+                          ),
+                        )
+                      ],
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Carregando, aguarde...',
+                              style: TextStyle(
+                                  color: corAzul,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w600)),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          CircularProgressIndicator()
                         ],
                       ),
-                    ),
-                  ),
-                  ListTile(
-                    title: Text(
-                        tipo == 'Gerar'
-                            ? 'Gerar Excel Completo'
-                            : 'Excluir Dados Completos',
-                        style: TextStyle(
-                            color: corAzul,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w600)),
-                    onTap: () async {
-                      Get.back();
-                      Get.back();
-                      Get.back();
-                      if (tipo == 'Gerar') {
-                        await GerarExcel().createExcel(this.registros);
-                      } else {
-                        //Excluir toda a lista
-                        print(this.registros.length);
-                        for(RegistrarPontoModel registro in this.registros){
-                          print(registro.id);
-                          await _db.collection('registros').document(registro.id).delete();
-                        }
-                      }
-                    },
-                  ),
-                  Divider(
-                    color: corAzul,
-                  ),
-                  ListTile(
-                    title: Text(
-                        tipo == 'Gerar'
-                            ? 'Gerar Excel em um Intervalo de Tempo'
-                            : 'Excluir Dados em um Intervalo de Tempo',
-                        style: TextStyle(
-                            color: corAzul,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w600)),
-                    subtitle: Text(
-                      '(De uma data à outra)',
-                      style: TextStyle(
-                          color: Colors.grey, fontWeight: FontWeight.w600),
-                    ),
-                    onTap: () {
-                      abrirDialogIntervaloInicialExcel(tipo);
-                    },
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 5, bottom: 8.0),
-                    child: FloatingActionButton.extended(
-                      backgroundColor: corAzul,
-                      elevation: 0,
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
-                      label: Text(
-                        'Voltar',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () {
-                        Get.back();
-                      },
-                    ),
-                  )
-                ],
-              ),
+                    )),
             ),
           );
         });
@@ -305,96 +356,128 @@ class HomeController extends GetxController {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30)),
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 10.0, bottom: 10),
-                              child: Text(
-                                'Selecione o Primeiro Intervalo',
-                                style: TextStyle(
-                                    color: corAzul,
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                            ElegantDropdown(
-                              cor: corAzul,
-                              value: this.dataInicialSelecionada ?? null,
-                              hint: 'Selecione o Primero Intervalo',
-                              items:
-                                  IntervaloDatas.getDatasIniciais(listMesAno),
-                              onChanged: (String value) {
-                                onChangedDataInicial(value, listMesAno);
-                              },
-                            ),
-                          ],
-                        ),
-                        mostrarCampoDataFinal
-                            ? SizedBox(
-                                height: 20,
-                                child: Divider(color: corAzul),
-                              )
-                            : Container(),
-                        mostrarCampoDataFinal
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: Obx(
+                        () => !this.loadingRegistrosExcel
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10.0, bottom: 10),
-                                    child: Text(
-                                      'Selecione o Segundo Intervalo',
-                                      style: TextStyle(
-                                          color: corAzul,
-                                          fontSize: 25,
-                                          fontWeight: FontWeight.w600),
-                                    ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10.0, bottom: 10),
+                                        child: Text(
+                                          'Selecione o Primeiro Intervalo',
+                                          style: TextStyle(
+                                              color: corAzul,
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ),
+                                      ElegantDropdown(
+                                        cor: corAzul,
+                                        value:
+                                            this.dataInicialSelecionada ?? null,
+                                        hint: 'Selecione o Primero Intervalo',
+                                        items: IntervaloDatas.getDatasIniciais(
+                                            listMesAno),
+                                        onChanged: (String value) {
+                                          onChangedDataInicial(
+                                              value, listMesAno);
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  ElegantDropdown(
-                                    cor: corAzul,
-                                    value: this.dataFinalSelecionada ?? null,
-                                    hint: 'Selecione a segunda data',
-                                    items: IntervaloDatas.getDatasFinais(
-                                        datasIntervalo),
-                                    onChanged: onChangedDatafinal,
-                                  ),
+                                  mostrarCampoDataFinal
+                                      ? SizedBox(
+                                          height: 20,
+                                          child: Divider(color: corAzul),
+                                        )
+                                      : Container(),
+                                  mostrarCampoDataFinal
+                                      ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10.0, bottom: 10),
+                                              child: Text(
+                                                'Selecione o Segundo Intervalo',
+                                                style: TextStyle(
+                                                    color: corAzul,
+                                                    fontSize: 25,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                            ElegantDropdown(
+                                              cor: corAzul,
+                                              value:
+                                                  this.dataFinalSelecionada ??
+                                                      null,
+                                              hint:
+                                                  'Selecione o Segundo Intervalo',
+                                              items:
+                                                  IntervaloDatas.getDatasFinais(
+                                                      datasIntervalo),
+                                              onChanged: onChangedDatafinal,
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
+                                  mostrarCampoDataFinal
+                                      ? Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 16,
+                                              bottom: 10,
+                                              left: 8,
+                                              right: 8),
+                                          child: CustomButton(
+                                            color: corAzul,
+                                            label: tipo == 'Gerar'
+                                                ? 'Gerar Excel'
+                                                : 'Excluir Dados',
+                                            action: () async {
+                                              print(listaIntervalada);
+                                              this.loadingRegistrosExcel = true;
+                                              await this.selecionarDataDoBanco(
+                                                  listaIntervalada, tipo);
+
+                                              Get.back();
+                                              Get.back();
+                                              Get.back();
+                                              Get.back();
+                                              this.loadingRegistrosExcel =
+                                                  false;
+                                            },
+                                          ),
+                                        )
+                                      : Container(),
                                 ],
                               )
-                            : Container(),
-                        mostrarCampoDataFinal
-                            ? Padding(
-                                padding: EdgeInsets.only(
-                                    top: 16, bottom: 10, left: 8, right: 8),
-                                child: CustomButton(
-                                  color: corAzul,
-                                  label: tipo == 'Gerar'
-                                      ? 'Gerar Excel'
-                                      : 'Excluir Dados',
-                                  action: () async {
-                                    print(listaIntervalada);
-
-                                    await this.selecionarDataDoBanco(
-                                        listaIntervalada, tipo);
-
-                                    Get.back();
-                                    Get.back();
-                                    Get.back();
-                                    Get.back();
-
-                                  },
+                            : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Carregando, aguarde...',
+                                        style: TextStyle(
+                                            color: corAzul,
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w600)),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    CircularProgressIndicator()
+                                  ],
                                 ),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                  ),
+                              ),
+                      )),
                 )),
           );
         });
@@ -459,7 +542,7 @@ class HomeController extends GetxController {
       //Excluir dados com base nos ids da lista de registros;
       for (RegistrarPontoModel registro in registrosLocal) {
         print(registro.id);
-        await _db.collection('registros').document(registro.id).delete();
+        _db.collection('registros').document(registro.id).delete();
       }
     }
   }
