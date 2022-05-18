@@ -12,71 +12,77 @@ class Login extends GetView<LoginController> {
     return Scaffold(
       body: Container(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextFormField(
-                  //readyOnly: controller.loading,
-                  label: 'Digite a Seu E-mail',
-                  keyboardType: TextInputType.text,
-                  padding: EdgeInsets.all(15),
-                  onChange: (String valor) {
-                    controller.usuario.email = valor;
-                  },
-                  validator: (String valor) {
-                    return valor.isEmpty ? 'Não deixe o campo em branco' : null;
-                  }),
-              CustomTextFormField(
-                  //readyOnly: controller.loading,
-                  //initialValue: controller.lancamento.titulo,
-                  label: 'Digite a sua Senha',
-                  keyboardType: TextInputType.text,
-                  padding: EdgeInsets.all(15),
-                  onChange: (String valor) {
-                    controller.usuario.senha = valor;
-                  },
-                  validator: (String valor) {
-                    return valor.isEmpty ? 'Não deixe o campo em branco' : null;
-                  }),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 15),
-                child: CustomButton(
-                  color: corAzul,
-                  label: 'Entrar',
-                  action: () {
-                    controller.validarCampos();
-                  },
-                  
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FlatButton(
-                    child: Text(
-                      'Esqueceu a Senha? Clique Aqui',
-                      style: TextStyle(color: Colors.grey),
+          child: Obx(() => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomTextFormField(
+                      readyOnly: controller.loading,
+                      label: 'Digite o Seu E-mail',
+                      keyboardType: TextInputType.text,
+                      padding: EdgeInsets.all(15),
+                      onChange: (String valor) {
+                        controller.usuario.email = valor;
+                      },
+                      validator: (String valor) {
+                        return valor.isEmpty
+                            ? 'Não deixe o campo em branco'
+                            : null;
+                      }),
+                  CustomTextFormField(
+                      readyOnly: controller.loading,
+                      label: 'Digite a sua Senha',
+                      keyboardType: TextInputType.text,
+                      padding: EdgeInsets.all(15),
+                      onChange: (String valor) {
+                        controller.usuario.senha = valor;
+                      },
+                      validator: (String valor) {
+                        return valor.isEmpty
+                            ? 'Não deixe o campo em branco'
+                            : null;
+                      }),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 15),
+                    child: CustomButton(
+                      color: corAzul,
+                      label: !controller.loading ? 'Entrar' : 'Entrando...',
+                      action: !controller.loading
+                          ? () {
+                              controller.validarCampos();
+                            }
+                          : null,
                     ),
-                    onPressed: () {
-                      controller.enviarEmailParaRecuperacaoDeSenha();
-                    }),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              FlatButton(
-                  child: Text(
-                    'Não possui conta? Clique Aqui',
-                    style: TextStyle(color: corVerde, fontSize: 18),
                   ),
-                  onPressed: () {
-                    Get.toNamed(Routes.CRIAR_CONTA);
-                  })
-            ],
-          ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FlatButton(
+                        child: Text(
+                          'Esqueceu a Senha? Clique Aqui',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        onPressed: !controller.loading
+                            ? () {
+                                controller.enviarEmailParaRecuperacaoDeSenha();
+                              }
+                            : null),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  FlatButton(
+                      child: Text(
+                        'Não possui conta? Clique Aqui',
+                        style: TextStyle(color: !controller.loading ? corVerde : Colors.grey, fontSize: 18),
+                      ),
+                      onPressed: !controller.loading ? () {
+                        Get.toNamed(Routes.CRIAR_CONTA);
+                      } : null)
+                ],
+              )),
         ),
       ),
     );

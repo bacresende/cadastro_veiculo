@@ -13,7 +13,18 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Obx(() => Text('Olá, ${controller.usuario.nome ?? ''}')),
+        title: Obx(() => Row(
+              children: [
+                IconButton(
+                    icon: Icon(Icons.exit_to_app_outlined), 
+                    tooltip: 'Sair do App',
+                    onPressed: () {
+                      controller.sairDoAplicativo();
+                    }
+                    ),
+                Expanded(child: Text('Olá, ${controller.usuario.nome ?? ''}')),
+              ],
+            )),
         backgroundColor: corAzul,
         actions: [
           Obx(() => controller.usuario.isAdmin
@@ -70,9 +81,11 @@ class HomeScreen extends GetView<HomeController> {
                 child: Obx(() => CustomButton(
                       color: corAzul,
                       label: 'Registrar Ponto',
-                      action: !controller.isLoading ? () {
-                        controller.abrirDialogRegistro();
-                      } : null,
+                      action: !controller.isLoading
+                          ? () {
+                              controller.abrirDialogRegistro();
+                            }
+                          : null,
                     )),
               ),
             ],

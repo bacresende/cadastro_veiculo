@@ -18,6 +18,21 @@ class LoginController extends GetxController {
 
   set loading(bool value) => _loading.value = value;
 
+  @override
+  void onInit() async {
+    super.onInit();
+
+    print('onInit do Login');
+    print('Id Usuário');
+
+    FirebaseUser user = await _auth.currentUser();
+
+    if (user != null) {
+      Get.offAllNamed(Routes.HOME);
+      infoSnackbar(titulo: 'Que bom ter você de volta!', cor: corVerde);
+    }
+  }
+
   validarCampos() {
     loading = true;
     Get.rawSnackbar(
@@ -42,17 +57,18 @@ class LoginController extends GetxController {
       logarUsuario();
     });
   }
+
   Future<void> enviarEmailParaRecuperacaoDeSenha() async {
-    
     if (usuario.email != null) {
       await _auth.sendPasswordResetEmail(email: usuario.email);
-      infoResetEmail(titulo: 'E-mail de Redefinição enviado para você', cor: corVerde);
+      infoSnackbar(
+          titulo: 'E-mail de Redefinição enviado para você', cor: corVerde);
     } else {
-      infoResetEmail(titulo: 'Preencha o Campo de E-mail', cor: corVermelha);
+      infoSnackbar(titulo: 'Preencha o Campo de E-mail', cor: corVermelha);
     }
   }
 
-  void infoResetEmail({String titulo, Color cor}) {
+  void infoSnackbar({String titulo, Color cor}) {
     Get.rawSnackbar(
         message: titulo,
         backgroundColor: cor,
@@ -64,16 +80,8 @@ class LoginController extends GetxController {
 
   void logarUsuario() async {
     try {
-      AuthResult authResult = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
           email: usuario.email, password: usuario.senha);
-
-      DocumentSnapshot snapshot =
-          await _db.collection('usuarios').document(authResult.user.uid).get();
-
-      usuario = Usuario.fromJson(snapshot.data);
-
-      print('usuario logado');
-      print(usuario.toMap());
 
       Get.offAllNamed(Routes.HOME);
     } catch (error) {
@@ -143,7 +151,7 @@ class LoginController extends GetxController {
         break;
       default:
         Get.rawSnackbar(
-            message: "Ocorreu um erro, tente novamente mais tarde!",
+            message: "Ocorreu um erro, tente novamente mais tarde! #$erro",
             backgroundColor: corVermelha,
             icon: Icon(
               Icons.info_outline,

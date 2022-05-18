@@ -941,4 +941,9 @@ class HomeController extends GetxController {
           );
         });
   }
+
+  Future<void> sairDoAplicativo() async {
+    await _auth.signOut();
+    Get.offAllNamed(Routes.INITIAL);
+  }
 }
