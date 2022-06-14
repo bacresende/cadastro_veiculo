@@ -192,7 +192,7 @@ class HomeController extends GetxController {
     this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
         a.horaRegistro.compareTo(b.horaRegistro));
 
-    print('tamanho de registros');
+    print('tamanho de registros ');
     print(registros.length);
     this.loadingRegistrosExcel = false;
 
