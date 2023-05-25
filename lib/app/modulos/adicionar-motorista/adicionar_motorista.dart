@@ -93,10 +93,6 @@ class AdicionarMotorista extends GetView<AdicionarMotoristaController> {
                   validator: (String valor) {
                     return valor.isEmpty ? 'Não deixe o campo em branco' : null;
                   },
-                  inputFormatters: [
-                    WhitelistingTextInputFormatter.digitsOnly,
-                    TelefoneInputFormatter(),
-                  ],
                 ),
               ],
             ),

@@ -12,15 +12,11 @@ class GerarExcel {
   Firestore _db = Firestore.instance;
   List<RegistrarPontoModel> registros = [];
 
-  
-
   Future<void> createExcel(List<RegistrarPontoModel> registrosLocal) async {
-    
-
     this.registros = registrosLocal;
 
     this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
-        a.horaRegistro.compareTo(b.horaRegistro));
+        a.data.compareTo(b.data));
 
     print(this.registros);
 

@@ -1,3 +1,6 @@
+import 'package:cadastro_veiculo/app/data/model/registrar_ponto_model.dart';
+import 'package:intl/intl.dart';
+
 class DataUtil {
   static String getAnoMes(String data) {
     List<String> diaMesAno = data.split('/');
@@ -9,6 +12,17 @@ class DataUtil {
     List<String> listaData = data.split('/');
     String anoMesDia = listaData[2] + listaData[1] + listaData[0];
     return anoMesDia;
+  }
+
+  static String getDiaMesAno(DateTime data) {
+    return DateFormat('dd/MM/yyyy').format(data);
+  }
+
+  static String getDiaMesAnoHora(RegistrarPontoModel registrarPonto) {
+    String diaMesAno = getDiaMesAno(registrarPonto.data);
+    String horaMinuto = registrarPonto.hora;
+
+    return '$diaMesAno - $horaMinuto';
   }
 
   static bool isValidDate(String input) {
@@ -28,7 +42,7 @@ class DataUtil {
     String mesAbrv;
     switch (mes) {
       case '1':
-        mesAbrv = 'JAN';  
+        mesAbrv = 'JAN';
         break;
       case '2':
         mesAbrv = 'FEV';
@@ -69,10 +83,8 @@ class DataUtil {
   }
 
   static String getMostrarMesAtual(String anoMes) {
-    
     List<String> listaMesAno = anoMes.split('/');
     String mes = getMesAbreviado(listaMesAno[0]);
-
 
     return mes + '/' + listaMesAno[1];
   }

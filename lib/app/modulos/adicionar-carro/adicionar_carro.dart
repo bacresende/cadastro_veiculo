@@ -88,11 +88,17 @@ class AdicionarCarro extends GetView<AdicionarCarroController> {
         child: Obx(() => CustomButton(
               color: corAzul,
               label: !controller.isEdit ? 'Salvar' : 'Atualizar',
-              action:  !controller.isLoading ? () async {
-                if (controller.keyForm.currentState.validate()) {
-                  await controller.salvar();
-                }
-              } : (){},
+              action: !controller.isLoading
+                  ? () async {
+                      if (controller.keyForm.currentState.validate()) {
+                        if (!controller.isEdit) {
+                          await controller.salvar();
+                        } else {
+                          await controller.atualizarVeiculo();
+                        }
+                      }
+                    }
+                  : () {},
             )),
       ),
     );

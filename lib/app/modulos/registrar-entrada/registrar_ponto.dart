@@ -80,7 +80,80 @@ class RegistrarPonto extends GetView<RegistrarPontoController> {
                                 .toList()),
                       ),
                     )
-                  : Container())
+                  : Container()),
+              Row(
+                children: [
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 30.0),
+                    child: TextField(
+                      onTap: () {
+                        controller.setDataCalendario();
+                      },
+                      controller: controller.dataEditingController,
+                      cursorColor: Colors.white,
+                      readOnly: true,
+                      autofocus: false,
+                      keyboardType: TextInputType.text,
+                      style: TextStyle(fontSize: 18),
+                      decoration: InputDecoration(
+                          labelStyle: TextStyle(color: Colors.white),
+                          contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                          hintText: "Data de Recebimento",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32))),
+                    ),
+                  )),
+                  IconButton(
+                      icon: Icon(
+                        Icons.calendar_today_outlined,
+                        color: corAzulEscuro,
+                      ),
+                      onPressed: () async {
+                        await controller.setDataCalendario();
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0),
+                    child: TextField(
+                      controller: controller.horaEditingController,
+                      onTap: () {
+                        controller.setHora();
+                      },
+                      cursorColor: Colors.white,
+                      readOnly: true,
+                      autofocus: false,
+                      keyboardType: TextInputType.text,
+                      style: TextStyle(fontSize: 18),
+                      decoration: InputDecoration(
+                          labelStyle: TextStyle(color: Colors.white),
+                          contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                          hintText: "Hora de Recebimento",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(32))),
+                    ),
+                  )),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0),
+                    child: IconButton(
+                        icon: Icon(
+                          Icons.alarm,
+                          color: corAzulEscuro,
+                        ),
+                        onPressed: () async {
+                          await controller.setHora();
+                        }),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -90,9 +163,11 @@ class RegistrarPonto extends GetView<RegistrarPontoController> {
         child: Obx(() => CustomButton(
               color: corAzul,
               label: 'Salvar',
-              action: !controller.isLoading ? () {
-                controller.salvar();
-              } : null,
+              action: !controller.isLoading
+                  ? () {
+                      controller.salvar();
+                    }
+                  : null,
             )),
       ),
     );

@@ -25,6 +25,10 @@ class LoginController extends GetxController {
     print('onInit do Login');
     print('Id Usuário');
 
+    verificarUsuario();
+  }
+
+  Future<void> verificarUsuario() async {
     FirebaseUser user = await _auth.currentUser();
 
     if (user != null) {

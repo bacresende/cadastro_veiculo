@@ -10,13 +10,15 @@ class VisualizarVisitantes extends GetView<VisualizarVisitantesController> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: TextField(
-            cursorColor: Colors.white,
-            onChanged: controller.setFiltro,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintStyle: TextStyle(color: Colors.white54),
-                hintText: 'Pesquisar Visitante'),
+          title: Obx(
+            () => TextField(
+                cursorColor: Colors.white,
+                onChanged: controller.setFiltro,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white54),
+                    hintText:
+                        'Pesquisar Visitante ${controller.visitantes.length}')),
           ),
           backgroundColor: corAzul,
         ),
@@ -52,7 +54,7 @@ class VisualizarVisitantes extends GetView<VisualizarVisitantesController> {
                               }),
                         ],
                       ),
-                      onTap: (){
+                      onTap: () {
                         controller.abrirDetalheVisitante(visitante);
                       },
                     );

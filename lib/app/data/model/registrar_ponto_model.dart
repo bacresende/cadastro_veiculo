@@ -4,23 +4,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrarPontoModel extends CarroModel {
   String id;
-  DateTime horaRegistro;
+  //DateTime horaRegistro;
   List<dynamic> motoristasModel = [];
   String tipo;
+  DateTime data;
+  String hora = '';
 
   RegistrarPontoModel();
 
   String get getDataCompleta =>
-      '${this.horaRegistro.day}/${this.horaRegistro.month}/${this.horaRegistro.year}';
+      '${this.data.day}/${this.data.month}/${this.data.year}';
 
-  String get getMesAno =>
-      '${this.horaRegistro.month}/${this.horaRegistro.year}';    
+  String get getMesAno => '${this.data.month}/${this.data.year}';
 
-  String get getHoras => '${this.horaRegistro.hour}:${this.horaRegistro.minute}';
+  String get getHoras => this.hora;
 
   RegistrarPontoModel.fromDocument(DocumentSnapshot doc) {
     this.id = doc.documentID;
-    this.horaRegistro = (doc.data['hora'] as Timestamp).toDate();
+    this.data = (doc.data['data'] as Timestamp).toDate() ?? Timestamp.now();
+    this.hora = doc.data['hora'];
     super.carro = doc.data['carro'];
     super.placa = doc.data['placa'];
     super.idCarro = doc.data['idCarro'];
@@ -33,7 +35,8 @@ class RegistrarPontoModel extends CarroModel {
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
-      'hora': DateTime.now(),
+      'data': this.data,
+      'hora': this.hora,
       'carro': super.carro,
       'placa': super.placa,
       'idCarro': super.idCarro,

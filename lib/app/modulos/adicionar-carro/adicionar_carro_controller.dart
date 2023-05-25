@@ -28,34 +28,21 @@ class AdicionarCarroController extends GetxController {
 
   Future<void> salvar() async {
     this.isLoading = true;
-    if (!this.isEdit) {
-      await gerarIdESalvar();
-    } else {
-      await atualizarVeiculo();
-    }
+    await gerarIdESalvar();
   }
 
   Future<void> gerarIdESalvar() async {
     carroModel.idCarro = carroModel.placa;
 
-    QuerySnapshot querySnapshot =
-        await _db.collection("veiculos").getDocuments();
+    DocumentSnapshot documentSnapshot =
+        await _db.collection("veiculos").document(carroModel.idCarro).get();
 
-    List<String> listaPlacas = [];
-
-    for (DocumentSnapshot item in querySnapshot.documents) {
-      String codigo = item.documentID;
-
-      listaPlacas.add(codigo);
-    }
-
-    if (!listaPlacas.contains(carroModel.idCarro)) {
+    if (!documentSnapshot.exists) {
       await salvarVeiculo();
     } else {
       this.isLoading = false;
-      DocumentSnapshot doc =
-          await _db.collection('veiculos').document(carroModel.idCarro).get();
-          CarroModel carroModelExistente = new CarroModel.fromJson(doc.data);
+      CarroModel carroModelExistente =
+          new CarroModel.fromJson(documentSnapshot.data);
 
       showDialogVeiculoCadastrado(carroModelExistente);
     }
@@ -127,7 +114,6 @@ class AdicionarCarroController extends GetxController {
   }
 
   void showDialogVeiculoCadastrado(CarroModel carroModelExistente) {
-
     Get.defaultDialog(
       barrierDismissible: false,
       backgroundColor: corVermelha,

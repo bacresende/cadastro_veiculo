@@ -190,7 +190,7 @@ class HomeController extends GetxController {
         .toList();
 
     this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
-        a.horaRegistro.compareTo(b.horaRegistro));
+        a.data.compareTo(b.data));
 
     print('tamanho de registros ');
     print(registros.length);
@@ -549,97 +549,109 @@ class HomeController extends GetxController {
 
   Future<void> abrirDialogRegistro() async {
     if (registrarPontoModel.idCarro != null) {
-      DocumentSnapshot documentSnapshot = await _db
-          .collection('veiculos')
-          .document(registrarPontoModel.idCarro)
-          .get();
+      try {
+        DocumentSnapshot documentSnapshot = await _db
+            .collection('veiculos')
+            .document(registrarPontoModel.idCarro)
+            .get();
 
-      if (documentSnapshot.exists) {
-        showModalBottomSheet(
-            context: Get.context,
-            backgroundColor: Colors.transparent,
-            builder: (_) {
-              return Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Selecione qual ação deseja realizar',
-                                style: TextStyle(
-                                    color: corAzulEscuro,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Divider()
-                            ],
+        if (documentSnapshot.exists) {
+          showModalBottomSheet(
+              context: Get.context,
+              backgroundColor: Colors.transparent,
+              builder: (_) {
+                return Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 15.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Selecione qual ação deseja realizar',
+                                  style: TextStyle(
+                                      color: corAzulEscuro,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Divider()
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      ListTile(
-                        title: Text('Registrar Entrada',
-                            style: TextStyle(
-                                color: corAzul,
-                                fontSize: 30,
-                                fontWeight: FontWeight.w600)),
-                        onTap: () async {
-                          Get.back();
-                          await this
-                              .registrarPonto('Entrada', documentSnapshot);
-                        },
-                      ),
-                      Divider(
-                        color: corAzulEscuro,
-                      ),
-                      ListTile(
-                        title: Text('Registrar Saída',
-                            style: TextStyle(
-                                color: corAzul,
-                                fontSize: 30,
-                                fontWeight: FontWeight.w600)),
-                        onTap: () async {
-                          Get.back();
-                          await this.registrarPonto('Saída', documentSnapshot);
-                        },
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 5, bottom: 8.0),
-                        child: FloatingActionButton.extended(
-                          backgroundColor: corAzul,
-                          elevation: 0,
-                          icon: Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.white,
-                          ),
-                          label: Text(
-                            'Voltar',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () {
+                        ListTile(
+                          title: Text('Registrar Entrada',
+                              style: TextStyle(
+                                  color: corAzul,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w600)),
+                          onTap: () async {
                             Get.back();
+                            await this
+                                .registrarPonto('Entrada', documentSnapshot);
                           },
                         ),
-                      )
-                    ],
+                        Divider(
+                          color: corAzulEscuro,
+                        ),
+                        ListTile(
+                          title: Text('Registrar Saída',
+                              style: TextStyle(
+                                  color: corAzul,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w600)),
+                          onTap: () async {
+                            Get.back();
+                            await this
+                                .registrarPonto('Saída', documentSnapshot);
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(left: 5, bottom: 8.0),
+                          child: FloatingActionButton.extended(
+                            backgroundColor: corAzul,
+                            elevation: 0,
+                            icon: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              'Voltar',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () {
+                              Get.back();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-            });
-      } else {
-        showDialogAddVeiculo();
+                );
+              });
+        } else {
+          showDialogAddVeiculo();
+        }
+      } catch (e) {
+        Get.rawSnackbar(
+            message:
+                "Ops! Excedeu a quantidade de utilização, tente novamente mais tarde",
+            backgroundColor: corVermelha,
+            icon: Icon(
+              Icons.info_outline,
+              color: Colors.white,
+            ));
       }
     } else {
       Get.rawSnackbar(

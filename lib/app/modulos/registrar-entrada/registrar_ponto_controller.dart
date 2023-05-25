@@ -5,6 +5,7 @@ import 'package:cadastro_veiculo/utils/preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class RegistrarPontoController extends GetxController {
   RxString _selecionadoPessoa = ''.obs;
@@ -15,7 +16,7 @@ class RegistrarPontoController extends GetxController {
 
   bool get isLoading => _isLoading.value;
 
-  set isLoading(bool value)=> _isLoading.value = value;
+  set isLoading(bool value) => _isLoading.value = value;
 
   RxString _observacao = 'sem observação'.obs;
 
@@ -24,6 +25,12 @@ class RegistrarPontoController extends GetxController {
   set observacao(String value) => _observacao.value = value;
 
   String observacaoGlobal = '';
+
+  TextEditingController dataEditingController =
+      new TextEditingController(text: '');
+
+  TextEditingController horaEditingController =
+      new TextEditingController(text: '');
 
   Firestore _db = Firestore.instance;
   RxList<MotoristaModel> motoristasModel = <MotoristaModel>[].obs;
@@ -72,7 +79,7 @@ class RegistrarPontoController extends GetxController {
   Future<void> setPessoas() async {
     QuerySnapshot querySnapshot =
         await _db.collection('motoristas').getDocuments();
-
+    motoristasModel.clear();
     for (DocumentSnapshot doc in querySnapshot.documents) {
       MotoristaModel motoristaModel = MotoristaModel.fromJson(doc.data);
 
@@ -256,8 +263,7 @@ class RegistrarPontoController extends GetxController {
                                       fontWeight: FontWeight.w500),
                                 ),
                                 subtitle: Text(visitante.empresa),
-                                onTap: (){
-                                  
+                                onTap: () {
                                   this.visitantesSelecionados.add(visitante);
                                   this.filtro = '';
                                   Get.back();
@@ -294,33 +300,86 @@ class RegistrarPontoController extends GetxController {
         });
   }
 
-
   void removeVisitante(MotoristaModel visitante) {
     this.visitantesSelecionados.remove(visitante);
   }
 
+  Future<void> setDataCalendario() async {
+    DateTime dateTime = await showDatePicker(
+      context: Get.context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(Duration(days: 30)),
+      cancelText: 'Cancelar',
+      helpText: 'Selecione uma Data',
+    );
+
+    String mesSelecionado = '';
+    if (dateTime != null) {
+      mesSelecionado = DateFormat('dd/MM/yyyy').format(dateTime);
+      this.registrarPontoModel.data = dateTime;
+    }
+    dataEditingController.text = mesSelecionado;
+  }
+
+  Future<void> setHora() async {
+    TimeOfDay timeOfDay = await showTimePicker(
+        context: Get.context,
+        initialTime: TimeOfDay.now(),
+        cancelText: 'Cancelar',
+        helpText: 'Selecione a hora');
+    String horaSelecionada = '';
+    if (timeOfDay != null) {
+      horaSelecionada = timeOfDay.format(Get.context);
+      this.registrarPontoModel.hora = horaSelecionada;
+    }
+
+    horaEditingController.text = horaSelecionada;
+  }
+
   void salvar() async {
     if (this.visitantesSelecionados.isNotEmpty) {
-      this.isLoading = true;
-      this.registrarPontoModel.motoristasModel =
-          this.visitantesSelecionados.value;
+      if (this.registrarPontoModel.data != null) {
+        if (this.registrarPontoModel.hora != '') {
+          this.isLoading = true;
+          this.registrarPontoModel.motoristasModel =
+              this.visitantesSelecionados.value;
 
-      await _db.collection('registros').add(registrarPontoModel.toMap());
-      await _db
-          .collection('veiculos')
-          .document(registrarPontoModel.idCarro)
-          .updateData({'observacao': registrarPontoModel.observacao});
+          await _db.collection('registros').add(registrarPontoModel.toMap());
+          await _db
+              .collection('veiculos')
+              .document(registrarPontoModel.idCarro)
+              .updateData({'observacao': registrarPontoModel.observacao});
 
-      Get.back();
-      this.isLoading = false;
+          Get.back();
+          this.isLoading = false;
 
-      Get.rawSnackbar(
-          message: "${this.registrarPontoModel.tipo} Registrada com Sucesso!",
-          backgroundColor: corVerde,
-          icon: Icon(
-            Icons.info_outline,
-            color: Colors.white,
-          ));
+          Get.rawSnackbar(
+              message:
+                  "${this.registrarPontoModel.tipo} Registrada com Sucesso!",
+              backgroundColor: corVerde,
+              icon: Icon(
+                Icons.info_outline,
+                color: Colors.white,
+              ));
+        } else {
+          Get.rawSnackbar(
+              message: "Ops! Selecione a Hora",
+              backgroundColor: corVermelha,
+              icon: Icon(
+                Icons.info_outline,
+                color: Colors.white,
+              ));
+        }
+      } else {
+        Get.rawSnackbar(
+            message: "Ops! Selecione a Data",
+            backgroundColor: corVermelha,
+            icon: Icon(
+              Icons.info_outline,
+              color: Colors.white,
+            ));
+      }
     } else {
       Get.rawSnackbar(
           message: "Ops! Selecione um Visitante",
