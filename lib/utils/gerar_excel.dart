@@ -18,8 +18,6 @@ class GerarExcel {
     this.registros.sort((RegistrarPontoModel a, RegistrarPontoModel b) =>
         a.data.compareTo(b.data));
 
-    print(this.registros);
-
     List<int> qtdeVisitantes = [];
 
     for (RegistrarPontoModel registro in this.registros) {

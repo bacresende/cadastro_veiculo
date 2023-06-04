@@ -14,6 +14,8 @@ class CustomTextFormField extends StatelessWidget {
   final List<TextInputFormatter> inputFormatters;
   final bool readyOnly;
   final Widget prefix;
+  final Widget suffix;
+  final bool obscureText;
 
   const CustomTextFormField(
       {Key key,
@@ -27,7 +29,9 @@ class CustomTextFormField extends StatelessWidget {
       this.keyboardType,
       this.inputFormatters,
       this.readyOnly,
-      this.prefix})
+      this.prefix,
+      this.suffix,
+      this.obscureText})
       : super(key: key);
 
   @override
@@ -42,6 +46,7 @@ class CustomTextFormField extends StatelessWidget {
         child: TextFormField(
           readOnly: this.readyOnly ?? false,
           initialValue: initialValue ?? '',
+          obscureText: this.obscureText ?? false,
           onChanged: onChange != null
               ? (String valor) {
                   onChange(valor);
@@ -59,6 +64,7 @@ class CustomTextFormField extends StatelessWidget {
                     child: this.prefix,
                   ) ??
                   null,
+              suffix: this.suffix ?? null,
               contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
               labelText: label ?? '',
               hintText: hint ?? '',

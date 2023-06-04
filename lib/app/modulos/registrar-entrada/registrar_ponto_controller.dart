@@ -345,7 +345,10 @@ class RegistrarPontoController extends GetxController {
           this.registrarPontoModel.motoristasModel =
               this.visitantesSelecionados.value;
 
+          //Criar registro
           await _db.collection('registros').add(registrarPontoModel.toMap());
+
+          //Atualizar observação do carro
           await _db
               .collection('veiculos')
               .document(registrarPontoModel.idCarro)
@@ -364,7 +367,7 @@ class RegistrarPontoController extends GetxController {
               ));
         } else {
           Get.rawSnackbar(
-              message: "Ops! Selecione a Hora",
+              message: "Ops! Selecione a Hora de ${registrarPontoModel.tipo}",
               backgroundColor: corVermelha,
               icon: Icon(
                 Icons.info_outline,
@@ -373,7 +376,7 @@ class RegistrarPontoController extends GetxController {
         }
       } else {
         Get.rawSnackbar(
-            message: "Ops! Selecione a Data",
+            message: "Ops! Selecione a Data de ${registrarPontoModel.tipo}",
             backgroundColor: corVermelha,
             icon: Icon(
               Icons.info_outline,

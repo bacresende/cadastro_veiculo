@@ -18,7 +18,7 @@ class Login extends GetView<LoginController> {
                 children: [
                   CustomTextFormField(
                       readyOnly: controller.loading,
-                      label: 'Digite o Seu E-mail',
+                      label: 'Digite o seu E-mail',
                       keyboardType: TextInputType.text,
                       padding: EdgeInsets.all(15),
                       onChange: (String valor) {
@@ -29,19 +29,34 @@ class Login extends GetView<LoginController> {
                             ? 'Não deixe o campo em branco'
                             : null;
                       }),
-                  CustomTextFormField(
-                      readyOnly: controller.loading,
-                      label: 'Digite a sua Senha',
-                      keyboardType: TextInputType.text,
-                      padding: EdgeInsets.all(15),
-                      onChange: (String valor) {
-                        controller.usuario.senha = valor;
-                      },
-                      validator: (String valor) {
-                        return valor.isEmpty
-                            ? 'Não deixe o campo em branco'
-                            : null;
-                      }),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomTextFormField(
+                            readyOnly: controller.loading,
+                            label: 'Digite a sua Senha',
+                            keyboardType: TextInputType.text,
+                            obscureText: controller.obscure,
+                            padding: EdgeInsets.all(15),
+                            onChange: (String valor) {
+                              controller.usuario.senha = valor;
+                            },
+                            validator: (String valor) {
+                              return valor.isEmpty
+                                  ? 'Não deixe o campo em branco'
+                                  : null;
+                            }),
+                      ),
+                      IconButton(
+                          onPressed: controller.changeObscure,
+                          icon: Icon(
+                            controller.obscure
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: corAzul,
+                          ))
+                    ],
+                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 16, horizontal: 15),
                     child: CustomButton(
@@ -76,11 +91,15 @@ class Login extends GetView<LoginController> {
                   FlatButton(
                       child: Text(
                         'Não possui conta? Clique Aqui',
-                        style: TextStyle(color: !controller.loading ? corVerde : Colors.grey, fontSize: 18),
+                        style: TextStyle(
+                            color: !controller.loading ? corVerde : Colors.grey,
+                            fontSize: 18),
                       ),
-                      onPressed: !controller.loading ? () {
-                        Get.toNamed(Routes.CRIAR_CONTA);
-                      } : null)
+                      onPressed: !controller.loading
+                          ? () {
+                              Get.toNamed(Routes.CRIAR_CONTA);
+                            }
+                          : null)
                 ],
               )),
         ),

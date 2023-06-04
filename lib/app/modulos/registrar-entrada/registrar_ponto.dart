@@ -99,7 +99,8 @@ class RegistrarPonto extends GetView<RegistrarPontoController> {
                       decoration: InputDecoration(
                           labelStyle: TextStyle(color: Colors.white),
                           contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                          hintText: "Data de Recebimento",
+                          hintText:
+                              "Data de ${controller.registrarPontoModel.tipo}",
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -134,7 +135,8 @@ class RegistrarPonto extends GetView<RegistrarPontoController> {
                       decoration: InputDecoration(
                           labelStyle: TextStyle(color: Colors.white),
                           contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                          hintText: "Hora de Recebimento",
+                          hintText:
+                              "Hora de ${controller.registrarPontoModel.tipo}",
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(

@@ -18,6 +18,12 @@ class LoginController extends GetxController {
 
   set loading(bool value) => _loading.value = value;
 
+  RxBool _obscure = true.obs;
+
+  bool get obscure => _obscure.value;
+
+  set obscure(bool value) => _obscure.value = value;
+
   @override
   void onInit() async {
     super.onInit();
@@ -35,6 +41,10 @@ class LoginController extends GetxController {
       Get.offAllNamed(Routes.HOME);
       infoSnackbar(titulo: 'Que bom ter você de volta!', cor: corVerde);
     }
+  }
+
+  void changeObscure() {
+    obscure = !obscure;
   }
 
   validarCampos() {

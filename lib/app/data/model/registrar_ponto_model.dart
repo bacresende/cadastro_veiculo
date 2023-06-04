@@ -21,8 +21,14 @@ class RegistrarPontoModel extends CarroModel {
 
   RegistrarPontoModel.fromDocument(DocumentSnapshot doc) {
     this.id = doc.documentID;
-    this.data = (doc.data['data'] as Timestamp).toDate() ?? Timestamp.now();
-    this.hora = doc.data['hora'];
+    this.data = (doc.data['data'] as Timestamp)?.toDate() ?? DateTime.now();
+
+    if (doc.data['hora'].runtimeType == String) {
+      this.hora = doc.data['hora'];
+    } else {
+      this.hora = 'Erro de App Antigo';
+    }
+
     super.carro = doc.data['carro'];
     super.placa = doc.data['placa'];
     super.idCarro = doc.data['idCarro'];
